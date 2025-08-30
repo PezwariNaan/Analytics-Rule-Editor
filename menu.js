@@ -62,10 +62,17 @@ const listRules = async (json) => {
         btn.type = 'button';
         btn.className = buttonStyle;
         btn.textContent  = displayName
-        btn.addEventListener('click', async() => {
-            openEditor();
-        });
+        // btn.addEventListener('click', async() => {
+        //     openEditor();
+        // });
+        
+        btn.dataset.modalTarget = 'authentication-modal';
+        btn.dataset.modalToggle = 'authentication-modal';
         
         ruleNameButtons.appendChild(btn);
+    }
+
+    if (window.initFlowbite) {
+        window.initFlowbite();
     }
 }
