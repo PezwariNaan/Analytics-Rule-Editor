@@ -23,7 +23,6 @@ function makeConatinerHighlightSelected(container) {
 }
 
 makeConatinerHighlightSelected(ruleSetButtons);
-// makeConatinerHighlightSelected(ruleNameButtons);
 
 document.getElementById('pickFolder').addEventListener('click', async() => {
     let i = 0;
@@ -41,7 +40,6 @@ document.getElementById('pickFolder').addEventListener('click', async() => {
 
             btn.addEventListener('click', async() => {
                 const file = await handle.getFile();
-                // console.log(JSON.parse(file.text()));
                 const text = await file.text();
                 const json = JSON.parse(text);
                 listRules(json);
@@ -57,22 +55,14 @@ const listRules = async (json) => {
     const resources = json['resources']
     for (const resource of resources) {
         const displayName = resource['properties']['displayName']
-        console.log(displayName)
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = buttonStyle;
         btn.textContent  = displayName
-        // btn.addEventListener('click', async() => {
-        //     openEditor();
-        // });
         
-        btn.dataset.modalTarget = 'authentication-modal';
-        btn.dataset.modalToggle = 'authentication-modal';
+        btn.dataset.openModal = 'true';
+        btn.dataset.title = displayName;
         
         ruleNameButtons.appendChild(btn);
-    }
-
-    if (window.initFlowbite) {
-        window.initFlowbite();
     }
 }
