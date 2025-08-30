@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CSOC JSON Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+
+  <body>
+    <div class="flex justify-center mt-2">
+        <h1 class="text-3xl font-bold underline">Base Ruleset</h1>
+    </div>
+        <div class="flex justify-center my-2">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full cursor-pointer" id="pickFolder">Select a Folder</button>
+        </div>
+    <div id="btn-container" class="flex flex-row">
+      <div id="Rulesets" class="flex flex-col"></div>
+      <div id="RuleNames" class="flex flex-col"></div>
+    </div>
+    <script src="menu.js"></script>
+    <script src="editor.js"></script>
+  </body>
+</html>
