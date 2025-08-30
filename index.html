@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>CSOC JSON Editor</title>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
 
@@ -22,10 +21,16 @@
     </div>
 
     <div id="modal-markup" class="fixed inset-0 bg-black/80 z-999 hidden">
-      <div id="modal-body" class="w-7/8 h-7/8 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg">
-        <div id="modal-header" class="flex flex-row">
-          <h1 id="modal-title" class="text-3xl font-bold underline text-center"></h1>
-          <button type="button" id="modal-close">X</button>
+      <div id="modal-body" class="w-7/8 h-7/8 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg overflow-auto">
+        <div id="modal-header" class="flex flex-row justify-between sticky bg-white top-0 shadow z-50">
+          <div></div>
+          <h1 id="modal-title" class="text-2xl font-bold underline"></h1>
+          <button type="button" id="modal-close" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer">X</button>
+        </div>
+        <div id="modal-main">
+          <table class="w-full text-sm text-left rtl:text-right">
+            <tbody id="modal-table"></tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 const ruleSetButtons = document.getElementById('Rulesets');
 const ruleNameButtons = document.getElementById('RuleNames');
+const resourceByButton = new WeakMap();
 
 const buttonStyle = 'bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow'
                     + ' w-full h-10 cursor-pointer whitespace-nowrap '
@@ -54,7 +55,7 @@ const listRules = async (json) => {
     ruleNameButtons.textContent = '';
     const resources = json['resources']
     for (const resource of resources) {
-        const displayName = resource['properties']['displayName']
+        const displayName = resource.properties.displayName;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = buttonStyle;
@@ -62,6 +63,8 @@ const listRules = async (json) => {
         
         btn.dataset.openModal = 'true';
         btn.dataset.title = displayName;
+
+        resourceByButton.set(btn, resource);
         
         ruleNameButtons.appendChild(btn);
     }
