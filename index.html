@@ -9,12 +9,12 @@
   </head>
 
   <body>
-    <div class="flex justify-center mt-2">
-        <h1 class="text-3xl font-bold underline">Base Ruleset</h1>
+    <div class="flex justify-center mt-2 shadow">
+        <h1 class="text-3xl font-bold underline mb-2">JSON Editor</h1>
     </div>
-        <div class="flex justify-center my-2">
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full cursor-pointer hidden" id="uploadJSON">Upload Rule JSON to Highlighted File</button>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full cursor-pointer" id="pickFolder">Select a Folder</button>
+        <div class="grid grid-cols-3 items-center my-2 w-full">
+            <button class="justify-self-start bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full cursor-pointer hidden" id="uploadJSON">Upload Rule to Highlighted File</button>
+            <button class="col-start-2 justify-self-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full cursor-pointer" id="pickFolder">Select a Folder</button>
         </div>
     <div id="btn-container" class="flex flex-row">
       <div id="Rulesets" class="flex flex-col"></div>
@@ -23,10 +23,10 @@
 
     <div id="modal-markup" class="fixed inset-0 bg-black/80 z-999 hidden">
       <div id="modal-body" class="w-7/8 h-7/8 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg overflow-auto">
-        <div id="modal-header" class="flex flex-row justify-between sticky bg-white top-0 shadow z-50">
-          <button id="saveRule" type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full cursor-pointer">Save Changes</button>
-          <h1 id="modal-title" class="text-2xl font-bold underline"></h1>
-          <button type="button" id="modal-close" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer">X</button>
+        <div id="modal-header" class="flex flex-row justify-between gap-2 sticky bg-white top-0 shadow z-50 my-1">
+          <button id="saveRule" type="button" class="mb-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-full cursor-pointer">Save Changes</button>
+          <h1 id="modal-title" class=" flex-1 min-w-0 text-center truncate text-2xl font-bold underline"></h1>
+          <button type="button" id="modal-close" class="mb-2 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-5 border border-gray-400 rounded shadow cursor-pointer">X</button>
         </div>
         <div id="modal-main">
           <table class="w-full text-sm text-left rtl:text-right">
@@ -34,7 +34,7 @@
           </table>
         </div>
         <div id="modal-footer">
-          <button type="button" id="deleteRule" class="bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full cursor-pointer">Delete Rule</button>
+          <button type="button" id="deleteRule" class="bg-red-500 hover:bg-blue-700 text-white font-bold p-2 my-2 rounded-full cursor-pointer">Delete Rule</button>
         </div>
       </div>
     </div>

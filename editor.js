@@ -6,8 +6,10 @@ const ruleTableEl = document.getElementById('modal-table');
 
 const tableRowClass = "bg-white border-b border-gray-200 hover:bg-gray-50 whitespace-pre";
 const tableKeyClass = "p-2 font-medium text-gray-900 whitespace-pre";
-const tableValClass = "p-2 whitespace-pre";
-const dropDownClass = ""
+const tableValClass = "p-2 whitespace-pre overflow-y-auto";
+const inputClass = "w-full p-1 border rounded pr-2 overfow-x-auto";
+const inputClassSmall = "w-30 p-1 border rounded pr-2 overfow-x-auto";
+const dropDownClass = "w-30 border rounded pr-2 overflow-x-auto"
 
 function openModal() {
     modal.classList.remove('hidden');
@@ -23,8 +25,6 @@ function closeModal() {
     modal.setAttribute('aria-hidden', 'true')
     document.body.classList.remove('overflow-hidden');
 }
-
-closeBtn?.addEventListener('click', closeModal);
 
 async function saveRuleToOriginalFile() {
     if (!currentFileHandle || !currentJson) {
@@ -61,10 +61,33 @@ function toDisplayStringByKey(key, value) {
     return String(value ?? '');
 }
 
+const makeNumberInput = (key, value, resource) => {
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = dropDownClass;
+    input.min = 0;
+    input.value = toDisplayStringByKey(key, value);
+    input.addEventListener('input', () => {
+        resource.properties[key] = coerceValueByKey(key, input.value);
+    });
+    return input;
+};
+
 const makeTextInput = (key, value, resource) => {
     const input = document.createElement('input');
     input.type = 'text';
-    input.className = "w-screen p-1 border rounded";
+    input.className = inputClass
+    input.value = toDisplayStringByKey(key, value);
+    input.addEventListener('input', () => {
+        resource.properties[key] = coerceValueByKey(key, input.value);
+    });
+    return input;
+};
+
+const makeTextInputSmall = (key, value, resource) => {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = inputClassSmall;
     input.value = toDisplayStringByKey(key, value);
     input.addEventListener('input', () => {
         resource.properties[key] = coerceValueByKey(key, input.value);
@@ -74,8 +97,19 @@ const makeTextInput = (key, value, resource) => {
 
 const makeTextArea = (key, value, resource) => {
     const ta = document.createElement('textarea');
-    ta.className = 'w-screen p-1 border rounded';
+    ta.className = inputClass
     ta.rows = 4;
+    ta.value = toDisplayStringByKey(key, value);
+    ta.addEventListener('input', () => {
+        resource.properties[key] = coerceValueByKey(key, ta.value);
+    });
+    return ta;
+};
+
+const makeTextAreaQuery = (key, value, resource) => {
+    const ta = document.createElement('textarea');
+    ta.className = inputClass;
+    ta.rows = 12;
     ta.value = toDisplayStringByKey(key, value);
     ta.addEventListener('input', () => {
         resource.properties[key] = coerceValueByKey(key, ta.value);
@@ -85,7 +119,7 @@ const makeTextArea = (key, value, resource) => {
 
 const makeSeverityDropDown = (key, value, resource) => {
     const sl = document.createElement('select');
-    sl.className = 'w-screen p-1 border rounded';
+    sl.className = dropDownClass;
     ['Informational', 'Low', 'Medium', 'High'].forEach(opt => {
         const o = document.createElement('option');
         o.value = opt;
@@ -101,7 +135,7 @@ const makeSeverityDropDown = (key, value, resource) => {
 
 const makeEnabledDropDown = (key, value, resource) => {
     const sl = document.createElement('select');
-    sl.className = 'w-screen p-1 border rounded';
+    sl.className = dropDownClass;
     ['true', 'false'].forEach(v => {
         const o = document.createElement('option');
         o.value = v;
@@ -115,14 +149,27 @@ const makeEnabledDropDown = (key, value, resource) => {
     return sl;
 };
 
+const makeFrequencyDropDown = (key, value, resource) => {
+    const sl = document.createElement('select');
+    sl.className = dropDownClass;
+}
+
 const fieldRenderers = {
     displayName: makeTextInput, 
     description: makeTextArea,
     severity: makeSeverityDropDown,
     enabled: makeEnabledDropDown,
-    query: makeTextArea,
+    query: makeTextAreaQuery,
     tactics: makeTextInput, 
-    suppressionEnabled: makeEnabledDropDown
+    suppressionEnabled: makeEnabledDropDown,
+    techniques: makeTextInput,
+    subTechniques: makeTextInput,
+    alertRuleTemplateName: makeTextInput,
+    triggerThreshold: makeNumberInput,
+    triggerOperator: makeTextInputSmall,
+    queryFrequency: makeTextInputSmall,
+    queryPeriod: makeTextInputSmall,
+    suppressionDuration: makeTextInputSmall
 };
 
 function defaultRenderer(_, value) { 
@@ -165,7 +212,7 @@ document.addEventListener('click', (e) => {
             tableRow.appendChild(tableVal);
             ruleTableEl.appendChild(tableRow);
 
-        }      
+        }
     }
 
     openModal();
@@ -185,7 +232,7 @@ document.getElementById('deleteRule')?.addEventListener('click', async(e) => {
     const rule = currentJson.resources[idx];
     const name = rule.properties.displayName;
 
-    const ok = confirm(`Delete Rule: '${name}'?`)
+    const ok = confirm(`Delete Rule: "${name}" from "${currentFileHandle.name}"?`)
     if (!ok) return;
 
     currentJson.resources.splice(idx, 1);
@@ -197,3 +244,5 @@ document.getElementById('deleteRule')?.addEventListener('click', async(e) => {
 });
 
 document.getElementById('saveRule')?.addEventListener('click', saveRuleToOriginalFile);
+
+closeBtn?.addEventListener('click', closeModal);

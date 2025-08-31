@@ -30,7 +30,6 @@ function makeContainerHighlightSelected(container) {
 }
 
 document.getElementById('pickFolder').addEventListener('click', async() => {
-    let i = 0;
     const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
 
     ruleSetButtons.textContent = '';
@@ -42,7 +41,7 @@ document.getElementById('pickFolder').addEventListener('click', async() => {
 
     files.sort((a, b) => a.name.localeCompare(b.name, undefined, {sensitivity: 'base', numeric: 'true'}));
 
-    files.forEach(({name, handle}, i) => {
+    files.forEach(({name, handle}, i = 0) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = buttonStyle;
@@ -137,3 +136,4 @@ uploadButton?.addEventListener('click', async(e) => {
 })
 
 makeContainerHighlightSelected(ruleSetButtons);
+makeContainerHighlightSelected(ruleNameButtons);
