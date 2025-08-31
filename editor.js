@@ -26,56 +26,91 @@ function closeModal() {
 
 closeBtn?.addEventListener('click', closeModal);
 
-const makeEditable = (value) => {
-    let td = document.createElement('td');
-    td.className = tableValClass;
-    td.setAttribute('contenteditable', 'true');
-    td.textContent = value;
-    return td;
+async function saveRuleToOriginalFile() {
+    if (!currentFileHandle || !currentJson) {
+        alert('Nothing to save.');
+        return;
+    }
+    
+    const writable = await currentFileHandle.createWritable();
+    await writable.write(JSON.stringify(currentJson, null, 2));
+    await writable.close();
 }
 
-const makeSeverityDropDown = (value) => {
-    let sl = document.createElement('select');
-    let op1 = document.createElement('option');
-    let op2 = document.createElement('option');
-    let op3 = document.createElement('option');
-    let op4 = document.createElement('option');
-
-    op1.value = 'Informational';
-    op1.textContent = 'Informational';
-
-    op2.value = 'Low';
-    op2.textContent = 'Low';
-
-    op3.value = 'Medium';
-    op3.textContent = 'Medium';
-
-    op4.value = 'High';
-    op4.textContent = 'High';
-
-    sl.appendChild(op1)
-    sl.appendChild(op2)
-    sl.appendChild(op3)
-    sl.appendChild(op4)
-
-    return sl
+function coerceValueByKey(key, raw) {
+    switch (key) {
+        case 'enabled':
+        case 'suppressionEnabled':
+            return String(raw) === 'true';
+        case 'tactics':
+            if (Array.isArray(raw)) return raw;
+            return String(raw).split(/[,\n]/).map(s => s.trim()).filter(Boolean) // Why boolean? 
+        default:
+            return raw;
+    }
 }
 
-const makeEnabledDropDown = (value) => {
-    let sl = document.createElement('select');
-    let op1 = document.createElement('option');
-    let op2 = document.createElement('option');
+function toDisplayStringByKey(key, value) {
+    if (key === 'tactics') {
+        if (Array.isArray(value)) return value.join(', ');
+        return String(value ?? '');
+    }
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    return String(value ?? '');
+}
 
-    op1.value = 'true';
-    op1.textContent = 'true';
+const makeTextInput = (key, value, resource) => {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = "w-screen p-1 border rounded";
+    input.value = toDisplayStringByKey(key, value);
+    input.addEventListener('input', () => {
+        resource.properties[key] = coerceValueByKey(key, input.value);
+    });
+    return input;
+};
 
-    op2.value = 'false';
-    op2.textContent = 'false'
+const makeTextArea = (key, value, resource) => {
+    const ta = document.createElement('textarea');
+    ta.className = 'w-screen p-1 border rounded';
+    ta.rows = 4;
+    ta.value = toDisplayStringByKey(key, value);
+    ta.addEventListener('input', () => {
+        resource.properties[key] = coerceValueByKey(key, ta.value);
+    });
+    return ta;
+};
 
-    sl.appendChild(op1);
-    sl.appendChild(op2);
+const makeSeverityDropDown = (key, value, resource) => {
+    const sl = document.createElement('select');
+    sl.className = 'w-screen p-1 border rounded';
+    ['Informational', 'Low', 'Medium', 'High'].forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt;
+        o.textContent = opt;
+        sl.appendChild(o);
+    });
+    sl.value = String(value);
+    sl.addEventListener('change', () => {
+        resource.properties[key] = sl.value;
+    });
+    return sl;
+}
 
-    return sl
+const makeEnabledDropDown = (key, value, resource) => {
+    const sl = document.createElement('select');
+    sl.className = 'w-screen p-1 border rounded';
+    ['true', 'false'].forEach(v => {
+        const o = document.createElement('option');
+        o.value = v;
+        o.textContent = v;
+        sl.appendChild(o);
+    });
+    sl.value = value ? 'true' : 'false';
+    sl.addEventListener('change', () => {
+        resource.properties[key] = sl.value === 'true';
+    });
+    return sl;
 }
 
 const makeBool = (value) => {
@@ -84,20 +119,20 @@ const makeBool = (value) => {
 }
 
 const fieldRenderers = {
-    displayName: makeEditable, 
-    description: makeEditable,
+    displayName: makeTextInput, 
+    description: makeTextArea,
     severity: makeSeverityDropDown,
     enabled: makeEnabledDropDown,
-    query: makeEditable,
-    tactics: makeEditable, 
+    query: makeTextArea,
+    tactics: makeTextInput, 
     suppressionEnabled: makeEnabledDropDown
 };
 
-function defaultRenderer(value) { 
-    const td = document.createElement('td');
-    td.className = tableValClass;
-    td.textContent = value ?? '';
-    return td;
+function defaultRenderer(key, value) { 
+    const span = document.createElement('span');
+    span.className = tableValClass;
+    span.textContent = value ?? '';
+    return span;
 }
 
 document.addEventListener('click', (e) => {
@@ -105,31 +140,34 @@ document.addEventListener('click', (e) => {
     if (!btn) return;
     
     const resource = resourceByButton.get(btn);
-
     const title = btn.dataset.title;
     titleEl.textContent = title;
+
+    ruleTableEl.innerHTML = '';
 
     if (resource) {
         for (const [key, value] of Object.entries(resource.properties)) {
             const renderer = fieldRenderers[key] || defaultRenderer;
 
             let tableRow = document.createElement('tr');
-            let tableKey = document.createElement('td');
-            let tableVal = document.createElement('td');
-
             tableRow.className = tableRowClass;
 
+            let tableKey = document.createElement('td');
             tableKey.className = tableKeyClass;
             tableKey.textContent = key;
-            
-            tableVal.className = tableValClass;
-            tableVal.appendChild(renderer(value));
 
-            ruleTableEl.appendChild(tableRow);
+            let tableVal = document.createElement('td');
+            tableVal.className = tableValClass;
+            tableVal.appendChild(renderer(key, value, resource));
+
             tableRow.appendChild(tableKey);
             tableRow.appendChild(tableVal);
+            ruleTableEl.appendChild(tableRow);
+
         }      
     }
 
     openModal();
 });
+
+document.getElementById('saveRule')?.addEventListener('click', saveRuleToOriginalFile);

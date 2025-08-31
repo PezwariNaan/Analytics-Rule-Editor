@@ -26,8 +26,6 @@ function makeConatinerHighlightSelected(container) {
     observer.observe(container, {childList: true});
 }
 
-makeConatinerHighlightSelected(ruleSetButtons);
-
 document.getElementById('pickFolder').addEventListener('click', async() => {
     let i = 0;
     const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
@@ -58,12 +56,12 @@ document.getElementById('pickFolder').addEventListener('click', async() => {
 const listRules = async (json) => {
     let i = 0;
     ruleNameButtons.textContent = '';
-    const resources = currentJson['resources']
+    const resources = currentJson.resources;
     for (const resource of resources) {
         const displayName = resource.properties.displayName;
         const btn = document.createElement('button');
         
-        btn.id++;
+        btn.id = i++;
         btn.type = 'button';
         btn.className = buttonStyle;
         btn.textContent  = displayName
@@ -76,3 +74,5 @@ const listRules = async (json) => {
         ruleNameButtons.appendChild(btn);
     }
 };
+
+makeConatinerHighlightSelected(ruleSetButtons);
