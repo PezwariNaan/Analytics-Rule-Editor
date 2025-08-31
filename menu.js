@@ -7,6 +7,9 @@ const buttonStyle = 'bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2
                     + ' data-[selected=true]:bg-blue-600 data-[selected=true]:text-white'
                     + ' data-[selected=true]:border-blue-600';
 
+let currentFileHandle = null;
+let currentJson = null;
+
 function makeConatinerHighlightSelected(container) {
     let last_selected = null;
     
@@ -27,7 +30,7 @@ makeConatinerHighlightSelected(ruleSetButtons);
 
 document.getElementById('pickFolder').addEventListener('click', async() => {
     let i = 0;
-    const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+    const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
 
     ruleSetButtons.textContent = '';
 
@@ -40,10 +43,11 @@ document.getElementById('pickFolder').addEventListener('click', async() => {
             btn.id = i++;
 
             btn.addEventListener('click', async() => {
+                currentFileHandle = handle;
                 const file = await handle.getFile();
                 const text = await file.text();
-                const json = JSON.parse(text);
-                listRules(json);
+                currentJson = JSON.parse(text);
+                listRules(currentJson);
             });
 
             ruleSetButtons.appendChild(btn);
@@ -52,11 +56,14 @@ document.getElementById('pickFolder').addEventListener('click', async() => {
 });
 
 const listRules = async (json) => {
+    let i = 0;
     ruleNameButtons.textContent = '';
-    const resources = json['resources']
+    const resources = currentJson['resources']
     for (const resource of resources) {
         const displayName = resource.properties.displayName;
         const btn = document.createElement('button');
+        
+        btn.id++;
         btn.type = 'button';
         btn.className = buttonStyle;
         btn.textContent  = displayName
@@ -68,4 +75,4 @@ const listRules = async (json) => {
         
         ruleNameButtons.appendChild(btn);
     }
-}
+};
