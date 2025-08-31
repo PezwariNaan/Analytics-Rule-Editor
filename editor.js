@@ -35,6 +35,8 @@ async function saveRuleToOriginalFile() {
     const writable = await currentFileHandle.createWritable();
     await writable.write(JSON.stringify(currentJson, null, 2));
     await writable.close();
+    listRules();
+    closeModal();
 }
 
 function coerceValueByKey(key, raw) {
@@ -44,7 +46,7 @@ function coerceValueByKey(key, raw) {
             return String(raw) === 'true';
         case 'tactics':
             if (Array.isArray(raw)) return raw;
-            return String(raw).split(/[,\n]/).map(s => s.trim()).filter(Boolean) // Why boolean? 
+            return String(raw).split(/[,\n]/).map(s => s.trim()).filter(Boolean)
         default:
             return raw;
     }
@@ -95,7 +97,7 @@ const makeSeverityDropDown = (key, value, resource) => {
         resource.properties[key] = sl.value;
     });
     return sl;
-}
+};
 
 const makeEnabledDropDown = (key, value, resource) => {
     const sl = document.createElement('select');
@@ -111,12 +113,7 @@ const makeEnabledDropDown = (key, value, resource) => {
         resource.properties[key] = sl.value === 'true';
     });
     return sl;
-}
-
-const makeBool = (value) => {
-    let tb = document.createElement('checkbox');
-
-}
+};
 
 const fieldRenderers = {
     displayName: makeTextInput, 
@@ -128,21 +125,25 @@ const fieldRenderers = {
     suppressionEnabled: makeEnabledDropDown
 };
 
-function defaultRenderer(key, value) { 
+function defaultRenderer(_, value) { 
     const span = document.createElement('span');
     span.className = tableValClass;
     span.textContent = value ?? '';
     return span;
 }
 
+// Dynamically Render the Modal
 document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-open-modal]');
     if (!btn) return;
     
     const resource = resourceByButton.get(btn);
     const title = btn.dataset.title;
-    titleEl.textContent = title;
+    const index = Number(btn.dataset.index);
 
+    modal.dataset.ruleIndex = String(index);
+
+    titleEl.textContent = title;
     ruleTableEl.innerHTML = '';
 
     if (resource) {
@@ -168,6 +169,31 @@ document.addEventListener('click', (e) => {
     }
 
     openModal();
+});
+
+document.getElementById('deleteRule')?.addEventListener('click', async(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const idx = Number(modal.dataset.ruleIndex);
+
+    if (!Number.isInteger(idx) || idx < 0 || idx >= currentJson.resources.length) {
+        alert ('Invalid rule reference. Tell Pez he\'s trash.');
+        return ;
+    }
+
+    const rule = currentJson.resources[idx];
+    const name = rule.properties.displayName;
+
+    const ok = confirm(`Delete Rule: '${name}'?`)
+    if (!ok) return;
+
+    currentJson.resources.splice(idx, 1);
+
+    saveRuleToOriginalFile();
+
+    listRules();
+    closeModal();
 });
 
 document.getElementById('saveRule')?.addEventListener('click', saveRuleToOriginalFile);
