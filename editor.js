@@ -1,17 +1,43 @@
-const modal     = document.getElementById('modal-markup');
-const modalBody = document.getElementById('modal-body');
-const closeBtn  = document.getElementById('modal-close');
-const titleEl   = document.getElementById('modal-title');
-const ruleTableEl = document.getElementById('modal-table');
+const modal               = document.getElementById('modal-markup');
+const modalBody           = document.getElementById('modal-body');
+const closeBtn            = document.getElementById('modal-close');
+const titleEl             = document.getElementById('modal-title');
+const ruleTableEl         = document.getElementById('modal-table');
 
-const tableRowClass = "bg-white border-b border-gray-200 hover:bg-gray-50 whitespace-pre";
-const tableKeyClass = "p-2 font-medium text-gray-900 whitespace-pre";
-const tableHeaderClass = "p-2 font-large text-black bg-indigo-500/20 whitespace-pre";
-const tableValClass = "p-2 whitespace-pre overflow-y-auto";
-const inputClass = "w-full p-1 border rounded pr-2 overfow-x-auto";
-const inputClassSmall = "w-30 p-1 border rounded pr-2 overfow-x-auto";
-const inputClassMedium = "w-40 p-1 border rounded pr-2 overfow-x-auto";
-const dropDownClass = "w-30 p-1 border rounded pr-2 overflow-x-auto"
+const tableRowClass       = "bg-white border-b border-gray-200 hover:bg-gray-50 whitespace-pre";
+const tableKeyClass       = "p-2 font-medium text-gray-900 whitespace-pre";
+const tableHeaderClass    = "p-2 font-large text-black bg-indigo-500/20 whitespace-pre";
+const tableValClass       = "p-2 whitespace-pre overflow-y-auto";
+const inputClass          = "w-full p-1 border rounded pr-2 overfow-x-auto";
+const inputClassSmall     = "w-30 p-1 border rounded pr-2 overfow-x-auto";
+const inputClassMedium    = "w-40 p-1 border rounded pr-2 overfow-x-auto";
+const dropDownClass       = "w-30 p-1 border rounded pr-2 overflow-x-auto"
+
+const fieldRenderers = {
+    displayName            : makeTextInput, 
+    description            : makeTextArea,
+    severity               : makeSeverityDropDown,
+    enabled                : makeEnabledDropDown,
+    query                  : makeTextAreaQuery,
+    tactics                : makeTextInput, 
+    suppressionEnabled     : makeEnabledDropDown,
+    techniques             : makeTextInput,
+    subTechniques          : makeTextInput,
+    alertRuleTemplateName  : makeTextInput,
+    triggerThreshold       : makeNumberInput,
+    triggerOperator        : makeTextInputSmall,
+    queryFrequency         : makeTextInputSmall,
+    queryPeriod            : makeTextInputSmall,
+    suppressionDuration    : makeTextInputSmall,
+    createIncident         : makeEnabledDropDown,
+    reopenClosedIncident   : makeEnabledDropDown, 
+    lookbackDuration       : makeTextInputSmall, 
+    matchingMethod         : makeTextInputMedium, 
+    aggregationKind        : makeTextInputMedium,
+    entityType             : makeTextInputMedium,
+    identifier             : makeTextInputMedium,
+    columnName             : makeTextInputMedium
+};
 
 function openModal() {
     modal.classList.remove('hidden');
@@ -41,44 +67,21 @@ async function saveRuleToOriginalFile() {
     closeModal();
 }
 
-const fieldRenderers = {
-    displayName: makeTextInput, 
-    description: makeTextArea,
-    severity: makeSeverityDropDown,
-    enabled: makeEnabledDropDown,
-    query: makeTextAreaQuery,
-    tactics: makeTextInput, 
-    suppressionEnabled: makeEnabledDropDown,
-    techniques: makeTextInput,
-    subTechniques: makeTextInput,
-    alertRuleTemplateName: makeTextInput,
-    triggerThreshold: makeNumberInput,
-    triggerOperator: makeTextInputSmall,
-    queryFrequency: makeTextInputSmall,
-    queryPeriod: makeTextInputSmall,
-    suppressionDuration: makeTextInputSmall,
-    createIncident: makeEnabledDropDown,
-    reopenClosedIncident: makeEnabledDropDown, 
-    lookbackDuration: makeTextInputSmall, 
-    matchingMethod: makeTextInputMedium, 
-    aggregationKind: makeTextInputMedium,
-    entityType: makeTextInputMedium,
-    identifier: makeTextInputMedium,
-    columnName: makeTextInputMedium
-};
-
 function renderObject(key, value, resource, fullpath, parentEl = ruleTableEl) {
     const renderer = fieldRenderers[key] || makeTextInputMedium;
     const path = fullpath ?? key;
-    const indent = 2;
+    const indent = 4;
     let depth = 0;
 
     if (Array.isArray(value)) {
         const hasObjects = value.some(v => v && typeof v === 'object' && !Array.isArray(v));
         if (hasObjects) {
+            const nestedTable = createNestedEl(parentEl, key, path, indent, depth);
+
             value.forEach((item, index) => {
-                renderObject(key, item, resource, `${path}[${index}]`);
+                renderObject(`Index: ${index}`, item, resource, `${path}[${index}]`, nestedTable);
             });
+            
             return;
         }
 
@@ -94,6 +97,7 @@ function renderObject(key, value, resource, fullpath, parentEl = ruleTableEl) {
         for (const [subKey, subVal] of Object.entries(value)) {
             renderObject(subKey, subVal, resource, `${path}.${subKey}`, nestedTable);
         }
+
         return;
     }
 
