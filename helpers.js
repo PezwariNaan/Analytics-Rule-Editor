@@ -117,30 +117,31 @@ const genTableRow = (path, key, value, renderer, resource) => {
     return tableRow;
 }
 
-const createNestedEl = (parentEl, key, path, indent, depth) => {
-        const details = document.createElement('details');
-        const summary = document.createElement('summary');
-        const nestedTable = document.createElement('table');
+const createNestedEl = (parentEl, key, path, depth) => {
+    const indent = 4;
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    const nestedTable = document.createElement('table');
 
-        summary.textContent = key;
-        summary.className = tableHeaderClass;
-        summary.dataset.path = path;
+    summary.textContent = key;
+    summary.className = tableHeaderClass;
+    summary.dataset.path = path;
 
-        nestedTable.className = `w-full text-sm text-left rtl:text-right indent-${indent * depth}`;
+    nestedTable.className = `w-full text-sm text-left rtl:text-right indent-${indent * depth}`;
 
-        details.appendChild(summary);
-        details.appendChild(nestedTable);
+    details.appendChild(summary);
+    details.appendChild(nestedTable);
 
-        const wrapperRow = document.createElement('tr');
-        const wrapperCell = document.createElement('td');
-        wrapperCell.colSpan = 2;
-        wrapperCell.appendChild(details);
-        wrapperRow.appendChild(wrapperCell);
-        wrapperRow.className = tableRowClass;
+    const wrapperRow = document.createElement('tr');
+    const wrapperCell = document.createElement('td');
+    wrapperCell.colSpan = 2;
+    wrapperCell.appendChild(details);
+    wrapperRow.appendChild(wrapperCell);
+    wrapperRow.className = tableRowClass;
 
-        parentEl.appendChild(wrapperRow);
+    parentEl.appendChild(wrapperRow);
 
-        return nestedTable;
+    return nestedTable;
 }
 
 function coerceValueByKey(key, raw) {

@@ -67,21 +67,19 @@ async function saveRuleToOriginalFile() {
     closeModal();
 }
 
-function renderObject(key, value, resource, fullpath, parentEl = ruleTableEl) {
+function renderObject(key, value, resource, fullpath, parentEl = ruleTableEl, depth = 1) {
     const renderer = fieldRenderers[key] || makeTextInputMedium;
     const path = fullpath ?? key;
-    const indent = 4;
-    let depth = 0;
 
     if (Array.isArray(value)) {
         const hasObjects = value.some(v => v && typeof v === 'object' && !Array.isArray(v));
         if (hasObjects) {
-            const nestedTable = createNestedEl(parentEl, key, path, indent, depth);
+            const nestedTable = createNestedEl(parentEl, key, path, depth++);
 
             value.forEach((item, index) => {
-                renderObject(`Index: ${index}`, item, resource, `${path}[${index}]`, nestedTable);
+                renderObject(`${key}: ${index}`, item, resource, `${path}[${index}]`, nestedTable, depth);
             });
-            
+
             return;
         }
 
@@ -92,10 +90,10 @@ function renderObject(key, value, resource, fullpath, parentEl = ruleTableEl) {
     }
 
     if (value !== null && typeof value === 'object') {
-        const nestedTable = createNestedEl(parentEl, key, path, indent, depth);
+        const nestedTable = createNestedEl(parentEl, key, path, depth);
 
         for (const [subKey, subVal] of Object.entries(value)) {
-            renderObject(subKey, subVal, resource, `${path}.${subKey}`, nestedTable);
+            renderObject(subKey, subVal, resource, `${path}.${subKey}`, nestedTable, depth++);
         }
 
         return;
@@ -103,7 +101,6 @@ function renderObject(key, value, resource, fullpath, parentEl = ruleTableEl) {
 
     const tableRowEl = genTableRow(path, key, value, renderer, resource);
     parentEl.appendChild(tableRowEl);
-    depth++;
 }
 
 // Dynamically Render the Modal
