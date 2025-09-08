@@ -8,6 +8,11 @@ const buttonStyle = 'bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2
                     + ' data-[selected=true]:bg-blue-600 data-[selected=true]:text-white'
                     + ' data-[selected=true]:border-blue-600';
 
+const btnDivStyle = 'bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow'
++ ' w-full h-10 whitespace-nowrap flex justify-between cursor-default'
++ ' data-[selected=true]:bg-blue-600 data-[selected=true]:text-white'
++ ' data-[selected=true]:border-blue-600';
+
 let currentFileHandle = null;
 let currentJson = null;
 
@@ -21,6 +26,7 @@ function makeContainerHighlightSelected(container) {
         if (last_selected && last_selected !== btn) {
             delete last_selected.dataset.selected;
         }
+
         btn.dataset.selected = 'true';
         last_selected = btn;
     });
@@ -73,19 +79,43 @@ const listRules = async () => {
 
     for (const resource of resources) {
         const displayName = resource.properties.displayName;
-        const btn = document.createElement('button');
+        const span = document.createElement('span');
+        const btnDiv = document.createElement('div');
+        const editBtn = document.createElement('button');
+        const colorCoder = document.createElement('select');
+        const green = document.createElement('option');
+        const yellow = document.createElement('option');
+        const red = document.createElement('option');
+        const blank = document.createElement('option');
         
-        btn.id = i;
-        btn.type = 'button';
-        btn.className = buttonStyle;
-        btn.textContent  = displayName
-        
-        btn.dataset.openModal = 'true';
-        btn.dataset.title = displayName;
-        btn.dataset.index = String(i++);
+        btnDiv.id = i;
+        btnDiv.type = 'div';
+        btnDiv.className = btnDivStyle;
 
-        resourceByButton.set(btn, resource);
-        ruleNameButtons.appendChild(btn);
+        colorCoder.type = 'select';
+        green.textContent = 'Green';
+        yellow.textContent = 'Yellow';
+        red.textContent = 'Red';
+        blank.textContent = '';
+        colorCoder.appendChild(blank)
+        colorCoder.appendChild(green);
+        colorCoder.appendChild(yellow);
+        colorCoder.appendChild(red);
+        
+        span.textContent = displayName;
+
+        editBtn.textContent = 'Edit';
+        editBtn.dataset.openModal = 'true';
+        editBtn.dataset.index = String(i++);
+        editBtn.className = 'text-orange-500 cursor-pointer end-full';
+        editBtn.dataset.title = displayName;
+
+        btnDiv.appendChild(colorCoder);
+        btnDiv.appendChild(span);
+        btnDiv.appendChild(editBtn)
+
+        resourceByButton.set(editBtn, resource);
+        ruleNameButtons.appendChild(btnDiv);
     }
 };
 
@@ -125,7 +155,7 @@ uploadButton?.addEventListener('click', async(e) => {
     const text = await file.text();
     const importedPayload = JSON.parse(text);
 
-    mergeResources( currentJson.resources, importedPayload.resources[0]);
+    mergeResources(currentJson.resources, importedPayload.resources[0]);
 
     await saveRuleToOriginalFile();
     await listRules();
