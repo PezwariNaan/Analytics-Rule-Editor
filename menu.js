@@ -8,10 +8,12 @@ const buttonStyle = 'bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2
                     + ' data-[selected=true]:bg-blue-600 data-[selected=true]:text-white'
                     + ' data-[selected=true]:border-blue-600';
 
-const btnDivStyle = 'bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow'
-+ ' w-full h-10 whitespace-nowrap flex justify-between cursor-default'
-+ ' data-[selected=true]:bg-blue-600 data-[selected=true]:text-white'
-+ ' data-[selected=true]:border-blue-600';
+const btnDivStyle = 'bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow group'
+                    + ' w-full h-10 whitespace-nowrap flex justify-between cursor-default'
+                    + ' data-[selected=true]:bg-blue-600 data-[selected=true]:text-white'
+                    + ' data-[selected=true]:border-blue-600';
+
+const smallButton = 'bg-orange-600 text-white rounded shadow cursor-pointer end-full p-auto px-5 pb-1 invisible group-hover:visible'
 
 let currentFileHandle = null;
 let currentJson = null;
@@ -101,13 +103,56 @@ const listRules = async () => {
         colorCoder.appendChild(green);
         colorCoder.appendChild(yellow);
         colorCoder.appendChild(red);
+
+        colorCoder.addEventListener('change', () => {
+            let color = '';
+            switch (colorCoder.value) {
+                case 'Green':
+                    color = '#00FF00';
+                    break;
+                case 'Yellow':
+                    color = '#FFFF00';
+                    break;
+                case 'Red':
+                    color = '#FF0000';
+                    break;
+                default:
+                    color = '';
+                    break;
+            }
+
+            btnDiv.style.backgroundColor = color;
+
+            localStorage.setItem(`ruleColor_${displayName}`, colorCoder.value);
+        });
         
         span.textContent = displayName;
+        
+        const savedColor = localStorage.getItem(`ruleColor_${displayName}`);
+        if (savedColor) {
+            colorCoder.value = savedColor;
+            switch (savedColor) {
+                case 'Green':
+                    btnDiv.style.backgroundColor = '#00FF00';
+                    break;
+                case 'Yellow':
+                    btnDiv.style.backgroundColor = '#FFFF00';
+                    break;
+                case 'Red':
+                    btnDiv.style.backgroundColor = '#FF0000';
+                    break;
+                default:
+                    btnDiv.style.backgroundColor = '';
+                    break;
+            }
+        }
+
+        span.className = 'mx-2';
 
         editBtn.textContent = 'Edit';
         editBtn.dataset.openModal = 'true';
         editBtn.dataset.index = String(i++);
-        editBtn.className = 'text-orange-500 cursor-pointer end-full';
+        editBtn.className = smallButton;
         editBtn.dataset.title = displayName;
 
         btnDiv.appendChild(colorCoder);
